@@ -34,13 +34,13 @@ class Report{
 
     // private $connJeon;
 
-    private $hostJeon="192.168.0.116";
+    private $hostJeon="192.168.1.31"; //testserver
 
     private $userJeon="sa";
 
     private $dbJeon="globaldom";
     
-    private $passJeon = "1234";
+    private $passJeon = "b@lowkid06021982";
 
 
     private $connJeon;
@@ -88,11 +88,11 @@ class Report{
                 
         
         // "; 
-        $sql = "select TOP 2 *, tblCrecoms.Code as CrecomsId  from tblloans
+        $sql = "select TOP 100 *, tblCrecoms.Code as CrecomsId  from tblloans
         LEFT OUTER JOIN tblPersonalInfos on
         tblloans.PersonalInfoId = tblPersonalInfos.id
         LEFT OUTER JOIN tblCrecoms on
-        tblloans.CrecomId = tblCrecoms.Id
+        tblloans.CrecomId = tblCrecoms.Id where tblloans.PNNo IS NOT NULL
      
 
         
@@ -116,61 +116,71 @@ class Report{
         
         $transfer = array();
 
+        
+
         foreach($data as $k => $v){
             $data[$k] = $v;
+
         }
 
+        $success = '123131';
+
         if($data){
-        
-            $transfer = "TO TRANSFER DATA";
-
-
-         
-
-
-            $success = "SUCCESS DATA TRANSFER";
-
+            // $transfer = "TO TRANSFER DATA";
+            // $success = "SUCCESS DATA TRANSFER";
             if($success){
-
-                
-
-               // to limit the data to send, 
+                // to limit the data to send, 
                 //   print_r($data[$i]);         exceed memory limit and execution time
                 // print_r($data[$i]);
                 // print_r($data['ASSD_LOANCODE'][$i]);
                 
-               
-                    // for($i = 0 ; $i < 5; $i++){
+                               // for($i = 0 ; $i < 5; $i++){
                     //  print_r($data[$i]);
-                    for ($i = 0; $i < 10; $i++) {
-                        $c = 0;
+                  // $output = print_r($data[$i]['PNNo'], TRUE);
+
+                        // if(empty(var_dump($data[$i]['PNNo'], TRUE))){
+                            
+
+
+
+                            foreach($data as $k => $v){
+
+                                for ($i = 0; $i < 100; $i++) {
+                                    $c = 0;
+                               
+                         
+                            
+                            
+                            
                        
-                        $output = print_r($data[$i]['PNNo'], TRUE);
-                        $output2 = print_r($data[$i]['ApprovedDate'], TRUE);
-                        $output3 = print_r($data[$i]['SubjectNo'], TRUE);
-                        $output4 = print_r($data[$i]['LoanAmount'], TRUE);
-                        $output5 = print_r($data[$i]['InterestRate'], TRUE);
-                        $output6 = print_r($data[$i]['TotalInterest'], TRUE);
-                        $output7 = print_r($data[$i]['GracePeriod'], TRUE);
-                        $output8 = print_r($data[$i]['Code'], TRUE);
-                        $output9 = print_r($data[$i]['PNValue'], TRUE);
-                        $output10 = print_r($data[$i]['ApprovedAmount'], TRUE);
-                        $output11 = print_r($data[$i]['LoanStatusId'], TRUE);
-                        $output12 = print_r($data[$i]['AdditionalInterestAmount'], TRUE);
-                        $output13 = print_r($data[$i]['AdditionalInterestDays'], TRUE);
-                        $output14 = print_r($data[$i]['DefaultFirstDueDate'], TRUE);
-                        $output15 = print_r($data[$i]['DefaultMaturityDate'], TRUE);
-                        $output16 = print_r($data[$i]['OutstandingBalance']);
-                        $output17 = print_r($data[$i]['LastPaymentDate'], TRUE);
-                        $output18 = print_r($data[$i]['CreationDate'], TRUE);
-                        $output19 = print_r($data[$i]['CrecomsId'], TRUE);
-                        $output20 = print_r($data[$i]['LoanClassId'], TRUE);
-                        $output21 = print_r($data[$i]['NoOfMonths'], TRUE);
-                        $output22 = print_r($data[$i]['PaymentModeId'], TRUE);
+                          
+                          
+                        // $output00 = $v['PNNo'];
+                        $output2 = $v['ApprovedDate'];
+                        $output3 = $v['SubjectNo'];
+                        $output4 = $v['LoanAmount'];
+                        $output5 = $v['InterestRate'];
+                        $output6 = $v['TotalInterest'];
+                        $output7 = $v['GracePeriod'];
+                        $output8 = $v['Code'];
+                        $output9 = $v['PNValue'];
+                        $output10 = $v['ApprovedAmount'];
+                        $output11 = $v['LoanStatusId'];
+                        $output12 = $v['AdditionalInterestAmount'];
+                        $output13 = $v['AdditionalInterestDays'];
+                        $output14 = $v['DefaultFirstDueDate'];
+                        $output15 = $v['DefaultMaturityDate'];
+                        $output16 = $v['OutstandingBalance'];
+                        $output17 = $v['LastPaymentDate'];
+                        $output18 = $v['CreationDate'];
+                        $output19 = $v['CrecomsId'];
+                        $output20 = $v['LoanClassId'];
+                        $output21 = $v['NoOfMonths'];
+                        $output22 = $v['PaymentModeId'];
 
 
                         
-                    
+                        try {
 
                         $sstmt = $this->conn->prepare("INSERT INTO LM_LOAN (LOAN_HO, 
                         LOAN_CO,LOAN_BR,LOAN_PN_NUMBER,LOAN_APP_CODE,
@@ -254,16 +264,20 @@ class Report{
 
                         
                         // $name = '0000';
-                        if($LOAN_PN_NUMBER == is_null()){
+                        // if($LOAN_PN_NUMBER == is_null()){
 
-                        }
+                        // }
                         print_r($i);
                         $LOAN_HO = $c;
-                        $LOAN_CO =  $c;
+                        $LOAN_CO = $c;
                         $LOAN_BR = $c;
                         $LOAN_APP_CODE = $c;
-                        $LOAN_PN_NUMBER = $output;
-
+                        // if(empty(print_r($data[$i]['PNNo']))){
+                        //     $data[$i]['PNNo'] = "No data ".$i;                                                   
+                        // }else{
+                        //     $data[$i]['PNNo'] = $data[$i]['PNNo'];
+                        // }
+                        $LOAN_PN_NUMBER = $v['PNNo'];
                         $LOAN_APP_DATE = $output2;
                         $LOAN_PRODUCT_CODE = $output3;
                         $LOAN_AMOUNT = $output4;
@@ -284,10 +298,12 @@ class Report{
                         $LOAN_APP_TYPE = $output20;
                         $LOAN_TERMS = $output21;
                         $LOAN_PAYMENT_MODE = $output22;
-                        
                         $sstmt->execute();
                         $c++;
-
+                    } catch (PDOException $e) {
+                        print $e->getMessage ();
+                    }
+                    
 
 
                 
@@ -304,6 +320,7 @@ class Report{
 
 
                     }
+                }
 
               
 
