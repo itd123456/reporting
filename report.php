@@ -15,7 +15,7 @@ class Report{
 
     private $host="localhost";
 
-    private $user="GLOBALDOMINION\AndrewNico.Lopez";
+    private $user="DESKTOP-OT75CAB";
 
     private $db="GLOBAL_SOFIADB";
 
@@ -34,13 +34,13 @@ class Report{
 
     // private $connJeon;
 
-    private $hostJeon="192.168.1.31"; //testserver
+    private $hostJeon="localhost"; //testserver
 
-    private $userJeon="sa";
+    private $userJeon="DESKTOP-OT75CAB";
 
     private $dbJeon="globaldom";
     
-    private $passJeon = "b@lowkid06021982";
+    // private $passJeon = "b@lowkid06021982";
 
 
     private $connJeon;
@@ -64,7 +64,8 @@ class Report{
 
      
 
-        $this->connJeon =  new PDO("sqlsrv:server=".$this->hostJeon.";Database=".$this->dbJeon, $this->userJeon, $this->passJeon);
+        // $this->connJeon =  new PDO("sqlsrv:server=".$this->hostJeon.";Database=".$this->dbJeon, $this->userJeon, $this->passJeon);
+        $this->connJeon=  new PDO("sqlsrv:server=".$this->hostJeon.";Database=".$this->dbJeon, NULL, NULL);
 
         $this->conn=  new PDO("sqlsrv:server=".$this->host.";Database=".$this->db, NULL, NULL);
         // $this->conn =  new PDO("mysql=".$this->host.";Database=".$this->db, $this->user, $this->pass);
@@ -88,7 +89,20 @@ class Report{
                 
         
         // "; 
-        $sql = "select TOP 100 *, tblCrecoms.Code as CrecomsId  from tblloans
+        $sql = "select TOP 100 *, tblCrecoms.Code as CrecomsId, 
+        tblBranches.code as branCode,
+		tblPersonalInfos.Code as persoCode,
+        tblProductTypes.code as protypeCode,
+		tblAccountOfficers.Code as accOcode        
+        from tblloans
+		LEFT OUTER JOIN tblAccountOfficers on
+		tblloans.AccountOfficerId = tblAccountOfficers.Id
+        LEFT OUTER JOIN tblProductTypes on
+        tblloans.ProductTypeId = tblProductTypes.Id
+        LEFT OUTER JOIN tblLoanConsultants on
+        tblloans.ConsultantId = tblLoanConsultants.Id
+        LEFT OUTER JOIN tblBranches on
+        tblloans.BranchId = tblBranches.id 
         LEFT OUTER JOIN tblPersonalInfos on
         tblloans.PersonalInfoId = tblPersonalInfos.id
         LEFT OUTER JOIN tblCrecoms on
@@ -177,6 +191,8 @@ class Report{
                         $output20 = $v['LoanClassId'];
                         $output21 = $v['NoOfMonths'];
                         $output22 = $v['PaymentModeId'];
+                        $output23 = $v['LoanClassId'];
+         
 
 
                         
@@ -239,12 +255,30 @@ class Report{
                         $sstmt->bindParam(':LOAN_APP_DATE',$LOAN_APP_DATE);
                         $sstmt->bindParam(':LOAN_PRODUCT_CODE',$LOAN_PRODUCT_CODE);
                         $sstmt->bindParam(':LOAN_AMOUNT',$LOAN_AMOUNT);
+                        $sstmt->bindParam(':LOAN_ADDON',$LOAN_ADDON);
+                        $sstmt->bindParam(':LOAN_INCLUDE_ADDON',$LOAN_INCLUDE_ADDON);
                         $sstmt->bindParam(':LOAN_INTEREST_RATE',$LOAN_INTEREST_RATE);
                         $sstmt->bindParam(':LOAN_INTEREST_AMOUNT',$LOAN_INTEREST_AMOUNT);
                         $sstmt->bindParam(':LOAN_GRACE_PERIOD',$LOAN_GRACE_PERIOD);
                         $sstmt->bindParam(':LOAN_BORROWER_CODE',$LOAN_BORROWER_CODE);
+                        $sstmt->bindParam(':LOAN_CHARGESTOTAL',$LOAN_CHARGESTOTAL);
                         $sstmt->bindParam(':LOAN_PNVALUE',$LOAN_PNVALUE);
+                        $sstmt->bindParam(':LOAN_MONTHLYAMORT',$LOAN_MONTHLYAMORT);
+                        $sstmt->bindParam(':LOAN_NETPROCEEDS',$LOAN_NETPROCEEDS);
+                        $sstmt->bindParam(':LOAN_REF_PN_NUMBER',$LOAN_REF_PN_NUMBER);
+                        $sstmt->bindParam(':LOAN_PREV_BALANCE',$LOAN_PREV_BALANCE);
+                        $sstmt->bindParam(':LOAN_APPL_INSTRUCTIONS',$LOAN_APPL_INSTRUCTIONS);
+                        $sstmt->bindParam(':LOAN_NEEDED_DATE',$LOAN_NEEDED_DATE);
+                        $sstmt->bindParam(':LOAN_RELEASED_DATE',$LOAN_RELEASED_DATE);
+                        $sstmt->bindParam(':LOAN_AMOUNT_APPLIED',$LOAN_AMOUNT_APPLIED);
+                        $sstmt->bindParam(':LOAN_TERMS_APPLIED',$LOAN_TERMS_APPLIED);
+                        $sstmt->bindParam(':LOAN_TERMS_APPROVED',$LOAN_TERMS_APPROVED);
                         $sstmt->bindParam(':LOAN_AMOUNT_APPROVED',$LOAN_AMOUNT_APPROVED);
+                        $sstmt->bindParam(':LOAN_INTERESTRATE_APPROVED',$LOAN_INTERESTRATE_APPROVED);
+                        $sstmt->bindParam(':LOAN_AO_CODE',$LOAN_AO_CODE);
+                        $sstmt->bindParam(':LOAN_ENCODED_DATE',$LOAN_ENCODED_DATE);
+                        $sstmt->bindParam(':LOAN_REMARKS',$LOAN_REMARKS);
+                        $sstmt->bindParam(':LOAN_FINANCE_CHARGES',$LOAN_FINANCE_CHARGES);
                         $sstmt->bindParam(':LOAN_STATUS',$LOAN_STATUS);
                         $sstmt->bindParam(':LOAN_ADDT_INTEREST',$LOAN_ADDT_INTEREST);
                         $sstmt->bindParam(':LOAN_ADDT_INTEREST_DAYS',$LOAN_ADDT_INTEREST_DAYS);
@@ -253,40 +287,44 @@ class Report{
                         $sstmt->bindParam(':LOAN_OBALANCE',$LOAN_OBALANCE);
                         $sstmt->bindParam(':LOAN_LASTPAYMENT_DATE',$LOAN_LASTPAYMENT_DATE);
                         $sstmt->bindParam(':LOAN_DATECREATED',$LOAN_DATECREATED);
-                        $sstmt->bindParam(':LOAN_CREMAN_CODE',$CrecomsId);
+                        $sstmt->bindParam(':LOAN_CREMAN_CODE',$LOAN_CREMAN_CODE);
                         $sstmt->bindParam(':LOAN_TERMS',$LOAN_TERMS);
                         $sstmt->bindParam(':LOAN_PAYMENT_MODE',$LOAN_PAYMENT_MODE);
-
-
-
-
-            
-
-                        
-                        // $name = '0000';
-                        // if($LOAN_PN_NUMBER == is_null()){
-
-                        // }
-                        print_r($i);
                         $LOAN_HO = $c;
                         $LOAN_CO = $c;
-                        $LOAN_BR = $c;
+                        $LOAN_BR = $v['branCode'];
                         $LOAN_APP_CODE = $c;
-                        // if(empty(print_r($data[$i]['PNNo']))){
-                        //     $data[$i]['PNNo'] = "No data ".$i;                                                   
-                        // }else{
-                        //     $data[$i]['PNNo'] = $data[$i]['PNNo'];
-                        // }
                         $LOAN_PN_NUMBER = $v['PNNo'];
                         $LOAN_APP_DATE = $output2;
+                        
                         $LOAN_PRODUCT_CODE = $output3;
                         $LOAN_AMOUNT = $output4;
+                        $LOAN_ADDON = $v['AdditionalInterestDays'];
+                        $LOAN_INCLUDE_ADDON = $v['AdditionalInterestAmount'];
                         $LOAN_INTEREST_RATE = $output5;
                         $LOAN_INTEREST_AMOUNT = $output6;
                         $LOAN_GRACE_PERIOD =$output7;
                         $LOAN_BORROWER_CODE = $output8;
+                        $LOAN_CHARGESTOTAL = $v['TotalAmortizedCharges'];
                         $LOAN_PNVALUE = $output9;
+                        $LOAN_MONTHLYAMORT = $v['Amortization'];
+                        $LOAN_NETPROCEEDS = $v['NetProceedAmount'];
+                        $LOAN_REF_PN_NUMBER = $v['ReferenceNo'];
+                        $LOAN_PREV_BALANCE = $v['OutstandingBalance'];
+                        $LOAN_APPL_INSTRUCTIONS = $v['LastDiaryComment'];
+                        $LOAN_NEEDED_DATE = $v['ConfirmDateTime'];
+                        $LOAN_RELEASED_DATE = $v['CheckPreparedDateTime'];
+                        $LOAN_AMOUNT_APPLIED = $v['AmortizationPaid'];
+                        $LOAN_TERMS_APPLIED = $v['NoOfMonths'];
+                        $LOAN_TERMS_APPROVED = $v['NoOfMonths'];
                         $LOAN_AMOUNT_APPROVED = $output10;
+                        $LOAN_INTERESTRATE_APPROVED = $v['InterestRate'];
+                        $LOAN_AO_CODE = $v['accOcode'];
+                        $LOAN_CREMAN_CODE = $v['CrecomsId'];
+                        $LOAN_DATECREATED = $v['CreationDate'];
+                        $LOAN_ENCODED_DATE = $v['CreationDate'];
+                        $LOAN_REMARKS = $v['ReleasingRemarks'];
+                        $LOAN_FINANCE_CHARGES['AddOnChargeAmount'];       
                         $LOAN_STATUS = $output11;
                         $LOAN_ADDT_INTEREST = $output12;
                         $LOAN_ADDT_INTEREST_DAYS = $output13;
@@ -298,7 +336,9 @@ class Report{
                         $LOAN_APP_TYPE = $output20;
                         $LOAN_TERMS = $output21;
                         $LOAN_PAYMENT_MODE = $output22;
+
                         $sstmt->execute();
+
                         $c++;
                     } catch (PDOException $e) {
                         print $e->getMessage ();
