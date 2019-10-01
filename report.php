@@ -1,8 +1,6 @@
 <?php
 
 class Report{
-
-
     // private $host="192.168.0.26";
 
     // private $user="saprog";
@@ -12,82 +10,72 @@ class Report{
     // private $pass="SQL@2012!";
 
     // private $conn;
-
-    private $host="localhost";
-
-    private $user="DESKTOP-OT75CAB";
-
+    private $host="192.168.0.116";
+    private $user="sa";
+    private $pass = '1234';
     private $db="GLOBAL_SOFIADB";
-
-
     private $conn;
 
-
-    
     // private $hostJeon="192.168.0.3, 12888";
-
     // private $userJeon="sa";
-
     // private $dbJeon="globaldom";
-
     // private $passJeon="gdfiadmin";
-
     // private $connJeon;
+    private $hostJeon="192.168.0.116"; //testserver
+    private $userJeon="sa";
+        private $passJeon="1234";
 
-    private $hostJeon="localhost"; //testserver
-
-    private $userJeon="DESKTOP-OT75CAB";
-
-    private $dbJeon="globaldom";
-    
+    private $dbJeon="globaldom"; 
     // private $passJeon = "b@lowkid06021982";
-
-
     private $connJeon;
-
-
-
-    private $hostReporting="localhost";
-
-    private $userReporting="root";
-
-    private $dbReporting="test";
-
-    private $passReporting="";
-
+    private $hostReporting="192.168.0.116";
+    private $userReporting="sa";
+    private $dbReporting="GLOBAL_SOFIADB";
+    private $passReporting="1234";
     private $connReporting;
 
- 
 
     public function __construct(){
-
-
-     
-
         // $this->connJeon =  new PDO("sqlsrv:server=".$this->hostJeon.";Database=".$this->dbJeon, $this->userJeon, $this->passJeon);
-        $this->connJeon=  new PDO("sqlsrv:server=".$this->hostJeon.";Database=".$this->dbJeon, NULL, NULL);
-
-        $this->conn=  new PDO("sqlsrv:server=".$this->host.";Database=".$this->db, NULL, NULL);
+        $this->connJeon=  new PDO("sqlsrv:server=".$this->hostJeon.";Database=".$this->dbJeon,  $this->userJeon, $this->passJeon);
+        $this->conn=  new PDO("sqlsrv:server=".$this->host.";Database=".$this->db,  $this->user,  $this-> pass);
         // $this->conn =  new PDO("mysql=".$this->host.";Database=".$this->db, $this->user, $this->pass);
         //$this->connReporting = new PDO("mysql:serve=".$this->$hostname.";dbname=".$this->dbReporting."",$this->userReporting,$this->passReporting);
-
         // $this->conn = new PDO("mysql:host=".$this->host.";dbname=".$this->db,$this->user,$this->pass);
-
  }
 
-
-    public function get(){
+    public function getLoans(){
+        try{
+           $stmt = $this->conn->prepare("exec [dbo].[LM_LOAN_INSERT] ? ? ? ?");
+           $stmt->bindParam(1, null);
+           $stmt->bindParam(2, null);
+           $stmt->bindParam(3, null);
+           $stmt->bindParam(4, null);
         
+           $stmt->execute(array());
+            
+                if($stmt){
+
+            print_r(json_encode($stmt));
+                }else{
+                    echo 'error';
+                }
+
+
+        }catch (PDOException $s) {
+            print $e->getMessage();
+        }
+
+        
+    }
+
+    public function get(){      
         // $sql = "select *, tblCrecoms.Code as CrecomsId  from tblloans
         //         LEFT OUTER JOIN tblPersonalInfos on
         //         tblloans.PersonalInfoId = tblPersonalInfos.id
         //         LEFT OUTER JOIN tblCrecoms on
         //         tblloans.CrecomId = tblCrecoms.Id
         //         where tblloans.Id >= 19867 AND tblloans.Id <=19875 
-
-                
-                
-        
         // "; 
         $sql = "select TOP 100 *, tblCrecoms.Code as CrecomsId, 
         tblBranches.code as branCode,
@@ -95,81 +83,34 @@ class Report{
         tblProductTypes.code as protypeCode,
 		tblAccountOfficers.Code as accOcode        
         from tblloans
-		LEFT OUTER JOIN tblAccountOfficers on
+        LEFT JOIN tblJournals on
+        tblloans.JournalVoucherId = tblJournals.Id
+		LEFT JOIN tblAccountOfficers on
 		tblloans.AccountOfficerId = tblAccountOfficers.Id
-        LEFT OUTER JOIN tblProductTypes on
+        LEFT JOIN tblProductTypes on
         tblloans.ProductTypeId = tblProductTypes.Id
-        LEFT OUTER JOIN tblLoanConsultants on
+        LEFT JOIN tblLoanConsultants on
         tblloans.ConsultantId = tblLoanConsultants.Id
-        LEFT OUTER JOIN tblBranches on
+        LEFT JOIN tblBranches on
         tblloans.BranchId = tblBranches.id 
-        LEFT OUTER JOIN tblPersonalInfos on
+        LEFT JOIN tblPersonalInfos on
         tblloans.PersonalInfoId = tblPersonalInfos.id
-        LEFT OUTER JOIN tblCrecoms on
-        tblloans.CrecomId = tblCrecoms.Id where tblloans.PNNo IS NOT NULL
-     
-
-        
-        
-
-        ";
-        // $sql = "SELECT * FROM
-        // (
-        //     selec row_number() over (order by id) as rn, * from LM_LOAN_ASSUMED
-        // ) T1
-        // where id";
-
-        // $sql = "select Id from LM_LOAN_ASSUMEDBY";
-        // fetch a limited data in database(partial migration)
-        
+        LEFT JOIN tblCrecoms on
+        tblloans.CrecomId = tblCrecoms.Id where tblloans.PNNo IS NOT NULL AND year(tblloans.LastPaymentDate) = 2019";
+             
         $stmt = $this->connJeon->prepare($sql);
         $stmt->execute(array());
-
-          $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        
+        $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
         $transfer = array();
-
-        
-
         foreach($data as $k => $v){
             $data[$k] = $v;
-
         }
-
         $success = '123131';
-
         if($data){
-            // $transfer = "TO TRANSFER DATA";
-            // $success = "SUCCESS DATA TRANSFER";
             if($success){
-                // to limit the data to send, 
-                //   print_r($data[$i]);         exceed memory limit and execution time
-                // print_r($data[$i]);
-                // print_r($data['ASSD_LOANCODE'][$i]);
-                
-                               // for($i = 0 ; $i < 5; $i++){
-                    //  print_r($data[$i]);
-                  // $output = print_r($data[$i]['PNNo'], TRUE);
-
-                        // if(empty(var_dump($data[$i]['PNNo'], TRUE))){
-                            
-
-
-
-                            foreach($data as $k => $v){
-
-                                for ($i = 0; $i < 100; $i++) {
-                                    $c = 0;
-                               
-                         
-                            
-                            
-                            
-                       
-                          
-                          
-                        // $output00 = $v['PNNo'];
+                        foreach($data as $k => $v){
+                            for ($i = 0; $i < 100; $i++) {
+                            $c = 0;
                         $output2 = $v['ApprovedDate'];
                         $output3 = $v['SubjectNo'];
                         $output4 = $v['LoanAmount'];
@@ -192,24 +133,39 @@ class Report{
                         $output21 = $v['NoOfMonths'];
                         $output22 = $v['PaymentModeId'];
                         $output23 = $v['LoanClassId'];
-         
-
-
-                        
                         try {
-
-                        $sstmt = $this->conn->prepare("INSERT INTO LM_LOAN (LOAN_HO, 
-                        LOAN_CO,LOAN_BR,LOAN_PN_NUMBER,LOAN_APP_CODE,
+                        $sstmt = $this->conn->prepare("INSERT INTO LM_LOAN(LOAN_HO,
+                        LOAN_CO,
+                        LOAN_BR,
+                        LOAN_PN_NUMBER,
+                        LOAN_APP_CODE,
                         LOAN_APP_TYPE,
                         LOAN_APP_DATE,
                         LOAN_PRODUCT_CODE,
                         LOAN_AMOUNT,
+                        LOAN_ADDON,
                         LOAN_INTEREST_RATE,
                         LOAN_INTEREST_AMOUNT,
                         LOAN_GRACE_PERIOD,
                         LOAN_BORROWER_CODE,
+                        LOAN_CHARGESTOTAL,
                         LOAN_PNVALUE,
+                        LOAN_MONTHLYAMORT,
+                        LOAN_NETPROCEEDS,
+                        LOAN_REF_PN_NUMBER,
+                        LOAN_PREV_BALANCE,
+                        LOAN_APPL_INSTRUCTIONS,
+                        LOAN_NEEDED_DATE,
+                        LOAN_RELEASED_DATE,
+                        LOAN_AMOUNT_APPLIED,
+                        LOAN_TERMS_APPLIED,
+                        LOAN_TERMS_APPROVED,
                         LOAN_AMOUNT_APPROVED,
+                        LOAN_INTERESTRATE_APPROVED,
+                        LOAN_AO_CODE,
+                        LOAN_ENCODED_DATE,
+                        LOAN_REMARKS,
+                        LOAN_FINANCE_CHARGES,
                         LOAN_STATUS,
                         LOAN_ADDT_INTEREST,
                         LOAN_ADDT_INTEREST_DAYS,
@@ -221,17 +177,38 @@ class Report{
                         LOAN_CREMAN_CODE,
                         LOAN_TERMS,
                         LOAN_PAYMENT_MODE
-                        )VALUES(:LOAN_HO, :LOAN_CO, :LOAN_BR, :LOAN_PN_NUMBER, :LOAN_APP_CODE,
+                        )VALUES(:LOAN_HO,
+                        :LOAN_CO,
+                        :LOAN_BR,
+                        :LOAN_PN_NUMBER,
+                        :LOAN_APP_CODE,
                         :LOAN_APP_TYPE,
                         :LOAN_APP_DATE,
                         :LOAN_PRODUCT_CODE,
                         :LOAN_AMOUNT,
+                        :LOAN_ADDON,
                         :LOAN_INTEREST_RATE,
                         :LOAN_INTEREST_AMOUNT,
                         :LOAN_GRACE_PERIOD,
                         :LOAN_BORROWER_CODE,
+                        :LOAN_CHARGESTOTAL,
                         :LOAN_PNVALUE,
+                        :LOAN_MONTHLYAMORT,
+                        :LOAN_NETPROCEEDS,
+                        :LOAN_REF_PN_NUMBER,
+                        :LOAN_PREV_BALANCE,
+                        :LOAN_APPL_INSTRUCTIONS,
+                        :LOAN_NEEDED_DATE,
+                        :LOAN_RELEASED_DATE,
+                        :LOAN_AMOUNT_APPLIED,
+                        :LOAN_TERMS_APPLIED,
+                        :LOAN_TERMS_APPROVED,
                         :LOAN_AMOUNT_APPROVED,
+                        :LOAN_INTERESTRATE_APPROVED,
+                        :LOAN_AO_CODE,
+                        :LOAN_ENCODED_DATE,
+                        :LOAN_REMARKS,
+                        :LOAN_FINANCE_CHARGES,
                         :LOAN_STATUS,
                         :LOAN_ADDT_INTEREST,
                         :LOAN_ADDT_INTEREST_DAYS,
@@ -243,12 +220,12 @@ class Report{
                         :LOAN_CREMAN_CODE,
                         :LOAN_TERMS,
                         :LOAN_PAYMENT_MODE
-                        )");
-
-                  
+                        )"
+                    );
                         $sstmt->bindParam(':LOAN_HO', $LOAN_HO);
                         $sstmt->bindParam(':LOAN_CO', $LOAN_CO);
                         $sstmt->bindParam(':LOAN_BR', $LOAN_BR);
+
                         $sstmt->bindParam(':LOAN_PN_NUMBER', $LOAN_PN_NUMBER);
                         $sstmt->bindParam(':LOAN_APP_CODE', $LOAN_APP_CODE);
                         $sstmt->bindParam(':LOAN_APP_TYPE', $LOAN_APP_TYPE);
@@ -256,7 +233,6 @@ class Report{
                         $sstmt->bindParam(':LOAN_PRODUCT_CODE',$LOAN_PRODUCT_CODE);
                         $sstmt->bindParam(':LOAN_AMOUNT',$LOAN_AMOUNT);
                         $sstmt->bindParam(':LOAN_ADDON',$LOAN_ADDON);
-                        $sstmt->bindParam(':LOAN_INCLUDE_ADDON',$LOAN_INCLUDE_ADDON);
                         $sstmt->bindParam(':LOAN_INTEREST_RATE',$LOAN_INTEREST_RATE);
                         $sstmt->bindParam(':LOAN_INTEREST_AMOUNT',$LOAN_INTEREST_AMOUNT);
                         $sstmt->bindParam(':LOAN_GRACE_PERIOD',$LOAN_GRACE_PERIOD);
@@ -290,14 +266,17 @@ class Report{
                         $sstmt->bindParam(':LOAN_CREMAN_CODE',$LOAN_CREMAN_CODE);
                         $sstmt->bindParam(':LOAN_TERMS',$LOAN_TERMS);
                         $sstmt->bindParam(':LOAN_PAYMENT_MODE',$LOAN_PAYMENT_MODE);
+                        $MFIN_TRANS_ID = '00'.$i;
                         $LOAN_HO = $c;
                         $LOAN_CO = $c;
-                        $LOAN_BR = $v['branCode'];
+                        // $LOAN_BR = $v['branCode'];
+                        $LOAN_BR = '100';
                         $LOAN_APP_CODE = $c;
-                        $LOAN_PN_NUMBER = $v['PNNo'];
+                        $year = '2019';
+                        $LOAN_PN_NUMBER = 'JE100'.$year.'0000'.$i;
+                        // $LOAN_PN_NUMBER = $v['PNNo'];
                         $LOAN_APP_DATE = $output2;
-                        
-                        $LOAN_PRODUCT_CODE = $output3;
+                        $LOAN_PRODUCT_CODE = '0202-'.$output3;
                         $LOAN_AMOUNT = $output4;
                         $LOAN_ADDON = $v['AdditionalInterestDays'];
                         $LOAN_INCLUDE_ADDON = $v['AdditionalInterestAmount'];
@@ -336,67 +315,236 @@ class Report{
                         $LOAN_APP_TYPE = $output20;
                         $LOAN_TERMS = $output21;
                         $LOAN_PAYMENT_MODE = $output22;
-
                         $sstmt->execute();
-
                         $c++;
                     } catch (PDOException $e) {
                         print $e->getMessage ();
                     }
-                    
-
-
-                
                         if($sstmt){
                             echo 123;
                         }else{
                             echo 'error';
                         }
-                        
-                      
-                      
-                        
-                    
-
-
                     }
                 }
-
-              
-
-
-                    //  for($j = 0; $j < $i; $j++){
-                    //      print_r($j)
-                    //  }
-//                 foreach($data as $k => $v){
-//                     print_r(json_encode($v));
-
-
-//                 //    print_r($v[0]); // display a key and value of an array
-                    
-                 
-//                    //   print_r($data['ASSD_LOANCODE']);
-//             }
-//  }
-
-                             
-
-
-
             }
             
         }else{
-
         }
-
-
+    }
+    public function PR_BORROWERS(){
+        $sql = "select top 100 * from tblloans LEFT JOIN tblPersonalInfos on 
+        tblloans.PersonalInfoId = tblPersonalInfos.Id 
+        where year(tblloans.LastPaymentDate) = 2019";
+        $stmt = $this->connJeon->prepare($sql);
+        $stmt->execute(array());
+        $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $transfer = array();
+        foreach($data as $k => $v){
+            $data[$k] = $v;
+        }
+        $success = '123131';
+        if($data){
+              if($success){
+                foreach($data as $k => $v){
+                    for ($i = 0; $i < 100; $i++) {
+                        $c = 0;
+                        try {
+                        $sstmt = $this->conn->prepare("INSERT INTO PR_BORROWERS(
+                            BORR_HO,
+                            BORR_CO,
+                            BORR_BR,
+                            BORR_CODE,
+                            BORR_LAST_NAME,
+                            BORR_FIRST_NAME,
+                            BORR_MIDDLE_NAME,
+                            BORR_SUFFIX,
+                            BORR_BIRTH_DATE,
+                            BORR_CIVIL_STATUS,
+                            BORR_GENDER,
+                            BORR_ADDRESS,
+                            BORR_EMAIL,
+                            BORR_EDUCATION,
+                            BORR_COURSE,
+                            BORR_CREATED_DATE
+                        )VALUES(
+                            :BORR_HO,
+                            :BORR_CO,
+                            :BORR_BR,
+                            :BORR_CODE,
+                            :BORR_LAST_NAME,
+                            :BORR_FIRST_NAME,
+                            :BORR_MIDDLE_NAME,
+                            :BORR_SUFFIX,
+                            :BORR_BIRTH_DATE,
+                            :BORR_CIVIL_STATUS,
+                            :BORR_GENDER,
+                            :BORR_ADDRESS,
+                            :BORR_EMAIL,
+                            :BORR_EDUCATION,
+                            :BORR_COURSE,
+                            :BORR_CREATED_DATE
+                        )"
+                    );                                   
+                    $BORR_HO = '00';
+                    $BORR_CO = '00';
+                    $BORR_BR = '100';
+                    $BORR_CODE = '00'.$k;
+                    $output = $v['LastName'];
+                    $output2 = $v['FirstName'];
+                    $output3 = $v['MiddleName'];
+                    $output4 = $v['SuffixName'];
+                    $output5 = $v['BirthDate'];
+                    $output6 = $v['CivilStatusId'];
+                    $output7 = $v['GenderId'];
+                    $output8 = $v['PresentAddrNo'];
+                    $output9 = $v['PresentAddrLengthOfStay'];
+                    $output10 = $v['HomePhone'];
+                    $output11 = $v['Cellphone'];
+                    $output12 = $v['EmailAddr'];
+                    $output13 = $v['EducationCourse'];
+                    $output14 = $v['EducationCourse'];
+                    $output15 = $v['CreationDate'];
+                        $sstmt->bindParam(':BORR_HO',$BORR_HO);
+                        $sstmt->bindParam(':BORR_CO',$BORR_CO);
+                        $sstmt->bindParam(':BORR_BR',$BORR_BR);
+                        $sstmt->bindParam(':BORR_CODE',$BORR_CODE);
+                        $sstmt->bindParam(':BORR_LAST_NAME', $output);
+                        $sstmt->bindParam(':BORR_FIRST_NAME', $output2);
+                        $sstmt->bindParam(':BORR_MIDDLE_NAME', $output3);
+                        $sstmt->bindParam(':BORR_SUFFIX', $output4);
+                        $sstmt->bindParam(':BORR_BIRTH_DATE', $output5);
+                        $sstmt->bindParam(':BORR_CIVIL_STATUS', $output6);
+                        $sstmt->bindParam(':BORR_GENDER', $output7);
+                        $sstmt->bindParam(':BORR_ADDRESS',$output8);
+                        $sstmt->bindParam(':BORR_EMAIL', $output12);
+                        $sstmt->bindParam(':BORR_EDUCATION', $output13);
+                        $sstmt->bindParam(':BORR_COURSE', $output14);
+                        $sstmt->bindParam(':BORR_CREATED_DATE', $output15);                                           
+                        $sstmt->execute();
+                        $c++;
+                    } catch (PDOException $e) {
+                        print $e->getMessage ();
+                    }
+                        if($sstmt){
+                            echo 123;
+                        }else{
+                            echo 'error';
+                        }
+                    }
+                }                      
+            }            
+        }else{
+        }
     }
 
-
-
-
-
-
+    public function TRANSMASTER(){
+        $sql = "select top 100 tblLoanPayments.date, tblloans.PNNo, tblLoanPayments.CheckNo, 
+        tblLoanPayments.Amount, tblLoanPayments.RefNo, tblLoanPayments.ORNo, 
+        tblLoanPayments.BankId, tblLoanPayments.Balance,
+        tblLoanPayments.CheckDepositDate, tblLoanPayments.Comments,
+        tblLoanPayments.Penalty,
+        tblLoanPayments.ARNo, tblLoans.LoanAmount, tblloans.PNValue,
+        tblLoans.JournalVoucherId, tblJournals.LoanId from tblloans inner join
+        tblJournals on tblloans.JournalVoucherId = tblJournals.Id 
+        inner join tblLoanPayments on
+        tblJournals.LoanId = tblLoanPayments.LoanId
+        where year(tblloans.LastPaymentDate) = 2019 AND tblloans.PNNo IS NOT NULL";
+        $stmt = $this->connJeon->prepare($sql);
+        $stmt->execute(array());
+        $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $transfer = array();
+        foreach($data as $k => $v){
+            $data[$k] = $v;
+        }
+        $success = '123131';
+        if($data){
+            if($success){
+              foreach($data as $k => $v){
+                    for ($i = 0; $i < 100; $i++) {
+                        $c = 0;
+                        try {
+                        $sstmt = $this->conn->prepare("INSERT INTO FI_FINANCETRANS_MASTER(
+                            MFIN_TRANS_ID,
+                            MFIN_TRANS_DATE,
+                            MFIN_HO_CODE,
+                            MFIN_CO_CODE,
+                            MFIN_BR_CODE,
+                            MFIN_PAY_AMOUNT,
+                            MFIN_POST_DATE,
+                            MFIN_REMARKS,
+                            MFIN_PNVALUE,
+                            MFIN_BALANCE,
+                            MFIN_PN_NUMBER,
+                            MFIN_PR_NUMBER,
+                            MFIN_REMIT_DATE,
+                            MFIN_PR_DATE,
+                            MFIN_GL_DATE
+                        )VALUES(
+                            :MFIN_TRANS_ID,
+                            :MFIN_TRANS_DATE,
+                            :MFIN_HO_CODE,
+                            :MFIN_CO_CODE,
+                            :MFIN_BR_CODE,
+                            :MFIN_PAY_AMOUNT,
+                            :MFIN_POST_DATE,
+                            :MFIN_REMARKS,
+                            :MFIN_PNVALUE,
+                            :MFIN_BALANCE,
+                            :MFIN_PN_NUMBER,
+                            :MFIN_PR_NUMBER,
+                            :MFIN_REMIT_DATE,
+                            :MFIN_PR_DATE,
+                            :MFIN_GL_DATE
+                            )"
+                    );                                   
+                    $MFIN_TRANS_ID = '00'.$i;
+                    $MFIN_HO_CODE = '00';
+                    $MFIN_CO_CODE = '00';
+                    $MFIN_BR_CODE = '100';
+                    $year = '2019';
+                    $LOAN_PN_NUMBER = 'JE100'.$year.'0000'.$i;
+                    $BORR_CODE = 'JEON MIGRATION-'.$i;
+                    $output = $v['Amount'];
+                    $output2 = $v['CheckDepositDate'];
+                    $output3 = $v['Comments'];
+                    $output4 = $v['PNValue'];
+                    $output5 = $v['Balance'];
+                    $output6 = $v['PNNo'];
+                    $output7 = $v['ARNo'];
+                    $date = date("Y-m-d H:i:s");
+                    $sstmt->bindParam(':MFIN_REMIT_DATE',$date);
+                    $sstmt->bindParam(':MFIN_PR_DATE',$date);
+                    $sstmt->bindParam(':MFIN_POST_DATE',$date);
+                    $sstmt->bindParam(':MFIN_GL_DATE',$date);
+                        $sstmt->bindParam(':MFIN_TRANS_ID',$MFIN_TRANS_ID);
+                        $sstmt->bindParam(':MFIN_TRANS_DATE',$date);
+                        $sstmt->bindParam(':MFIN_HO_CODE',$MFIN_HO_CODE);
+                        $sstmt->bindParam(':MFIN_CO_CODE',$MFIN_CO_CODE);
+                        $sstmt->bindParam(':MFIN_BR_CODE',$MFIN_BR_CODE);
+                        $sstmt->bindParam(':MFIN_PAY_AMOUNT', $output);
+                        $sstmt->bindParam(':MFIN_POST_DATE', $output2);
+                        $sstmt->bindParam(':MFIN_REMARKS', $output3);
+                        $sstmt->bindParam(':MFIN_PNVALUE', $output4);
+                        $sstmt->bindParam(':MFIN_BALANCE', $output5);
+                        $sstmt->bindParam(':MFIN_PN_NUMBER', $LOAN_PN_NUMBER);
+                        $sstmt->bindParam(':MFIN_PR_NUMBER', $output7);
+                        $sstmt->execute();
+                        $c++;
+                    } catch (PDOException $e) {
+                        print $e->getMessage ();
+                    }
+                        if($sstmt){
+                            echo 123;
+                        }else{
+                            echo 'error';
+                        }
+                    }
+                }                      
+            }            
+        }else{
+        }
+    }
 }
 
 ?>
