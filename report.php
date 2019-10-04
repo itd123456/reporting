@@ -10,74 +10,323 @@ class Report{
     // private $pass="SQL@2012!";
 
     // private $conn;
+
+    
     private $host="192.168.0.116";
     private $user="sa";
     private $pass = '1234';
     private $db="GLOBAL_SOFIADB";
     private $conn;
 
+    //     private $host="localhost";
+    // private $user="DESKTOP-OT75CAB";
+    // private $pass = '';
+    // private $db="GLOBAL_SOFIADB";
+    // private $conn;
     // private $hostJeon="192.168.0.3, 12888";
     // private $userJeon="sa";
     // private $dbJeon="globaldom";
     // private $passJeon="gdfiadmin";
-    // private $connJeon;
+
+
+    private $connJeon;
     private $hostJeon="192.168.0.116"; //testserver
     private $userJeon="sa";
         private $passJeon="1234";
 
     private $dbJeon="globaldom"; 
-    // private $passJeon = "b@lowkid06021982";
-    private $connJeon;
-    private $hostReporting="192.168.0.116";
-    private $userReporting="sa";
-    private $dbReporting="GLOBAL_SOFIADB";
-    private $passReporting="1234";
-    private $connReporting;
+
+    // private $hostJeon="localhost"; //testserver
+    // private $userJeon="DESKTOP-OT75CAB";
+    // private $passJeon="";
+
+    // private $dbJeon="globaldom"; 
+    // private $connJeon;
+    // private $hostReporting="192.168.0.116";
+    // private $userReporting="sa";
+    // private $dbReporting="GLOBAL_SOFIADB";
+    // private $passReporting="1234";
+    // private $connReporting;
+
+
+    //     private $connJeon;
+    // private $hostReporting="192.168.0.116";
+    // private $userReporting="sa";
+    // private $dbReporting="GLOBAL_SOFIADB";
+    // private $passReporting="1234";
+    // private $connReporting;
 
 
     public function __construct(){
         // $this->connJeon =  new PDO("sqlsrv:server=".$this->hostJeon.";Database=".$this->dbJeon, $this->userJeon, $this->passJeon);
-        $this->connJeon=  new PDO("sqlsrv:server=".$this->hostJeon.";Database=".$this->dbJeon,  $this->userJeon, $this->passJeon);
-        $this->conn=  new PDO("sqlsrv:server=".$this->host.";Database=".$this->db,  $this->user,  $this-> pass);
+        $this->connJeon=  new PDO("sqlsrv:server=".$this->hostJeon.";Database=".$this->dbJeon, $this->userJeon, $this->passJeon);
+        $this->conn=  new PDO("sqlsrv:server=".$this->host.";Database=".$this->db, $this->user, $this->pass);
         // $this->conn =  new PDO("mysql=".$this->host.";Database=".$this->db, $this->user, $this->pass);
         //$this->connReporting = new PDO("mysql:serve=".$this->$hostname.";dbname=".$this->dbReporting."",$this->userReporting,$this->passReporting);
         // $this->conn = new PDO("mysql:host=".$this->host.";dbname=".$this->db,$this->user,$this->pass);
  }
 
-    public function getLoans(){
-        try{
-           $stmt = $this->conn->prepare("exec [dbo].[LM_LOAN_INSERT] ? ? ? ?");
-           $stmt->bindParam(1, null);
-           $stmt->bindParam(2, null);
-           $stmt->bindParam(3, null);
-           $stmt->bindParam(4, null);
-        
-           $stmt->execute(array());
-            
-                if($stmt){
+    public function updateBranch(){
+        $sql = "select top 300 * from LM_LOAN where LOAN_CO = :LOAN_CO";
 
-            print_r(json_encode($stmt));
-                }else{
-                    echo 'error';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(array(
+            ':LOAN_CO' => 0
+        ));
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach($data as $k => $v){
+
+      
+            $stmtUpdate = $this->conn->prepare("UPDATE LM_LOAN set LOAN_BR = :LOAN_BR, 
+            LOAN_PN_NUMBER = :LOAN_PN_NUMBER2, LOAN_BORROWER_CODE = :LOAN_BORROWER_CODE where LOAN_PN_NUMBER = :LOAN_PN_NUMBER");
+            for($i=0;$i<300;$i++){
+                $LOAN_PN_NUMBER = $data[$i]['LOAN_PN_NUMBER'];
+                $LOAN_BR = "";
+                $LOAN_PN_NUMBER2 = "";
+                $CODE = "";
+
+                $lastchar = substr($data[$i]['LOAN_PN_NUMBER'], -4);
+                $lastcharCode = substr($data[$i]['LOAN_PN_NUMBER'], -8);
+                if($data[$i]['LOAN_BR'] == 'HOF' ){
+                    $LOAN_BR = '100';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'LPS'){
+                    $LOAN_BR = '206';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'PAM'){
+                    $LOAN_BR = '313';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'QC'){
+                    $LOAN_BR = '108';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'MKT'){
+                    $LOAN_BR = '200';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                }elseif($data[$i]['LOAN_BR'] == 'MNL'){
+                    $LOAN_BR = '201';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'CAV'){
+                    $LOAN_BR = '202';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                }elseif($data[$i]['LOAN_BR'] == 'BAG'){
+                    $LOAN_BR = '300';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'CEB'){
+                    $LOAN_BR = '401';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'BAL'){
+                    $LOAN_BR = '302';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'ILO'){
+                    $LOAN_BR = '404';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'BAC'){
+                    $LOAN_BR = '400';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'CDO'){
+                    $LOAN_BR = '501';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'DAV'){
+                    $LOAN_BR = '502';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'TEST'){
+                    $LOAN_BR = '405';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'TAR'){
+                    $LOAN_BR = '316';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'CAB'){
+                    $LOAN_BR = '304';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar;
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode; 
+                }elseif($data[$i]['LOAN_BR'] == 'TLC'){
+                    $LOAN_BR = '316';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'GEN'){
+                    $LOAN_BR = '503';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'TS'){
+                    $LOAN_BR = '108';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'BAT'){
+                    $LOAN_BR = '303';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'LIP'){
+                    $LOAN_BR = '207';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'DAG'){
+                    $LOAN_BR = '305';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'TAG'){
+                    $LOAN_BR = '505';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'DUM'){
+                    $LOAN_BR = '403';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'CAI'){
+                    $LOAN_BR = '102';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'TGM'){
+                    $LOAN_BR = '505';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'SAN'){
+                    $LOAN_BR = '314';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'BUT'){
+                    $LOAN_BR = '500';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'TUG'){
+                    $LOAN_BR = '317';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'KOR'){
+                    $LOAN_BR = '504';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'INT'){
+                    $LOAN_BR = '205';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'POE'){
+                    $LOAN_BR = '105';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'BLR'){
+                    $LOAN_BR = '301';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }elseif($data[$i]['LOAN_BR'] == 'MAR'){
+                    $LOAN_BR = '104';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }
+                elseif($data[$i]['LOAN_BR'] == 'ROS'){
+                    $LOAN_BR = 'ROS';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }
+                elseif($data[$i]['LOAN_BR'] == 'LTD'){
+                    $LOAN_BR = '308';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }
+                elseif($data[$i]['LOAN_BR'] == 'TNY'){
+                    $LOAN_BR = '107';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar;
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode; 
+                }
+                elseif($data[$i]['LOAN_BR'] == 'MEY'){
+                    $LOAN_BR = '311';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }
+                elseif($data[$i]['LOAN_BR'] == 'TAC'){
+                    $LOAN_BR = '407';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }
+                elseif($data[$i]['LOAN_BR'] == 'TBL'){
+                    $LOAN_BR = '408';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
+                }
+                elseif($data[$i]['LOAN_BR'] == 'IMS'){
+                    $LOAN_BR = '204';
+                    $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar;
+                    $CODE = '0000'.$LOAN_BR.'2019'.$lastcharCode;
                 }
 
+                $stmtUpdate->execute(array(
+                    ':LOAN_BR' => $LOAN_BR,
+                    ':LOAN_PN_NUMBER' => $LOAN_PN_NUMBER,
+                    ':LOAN_PN_NUMBER2' => $LOAN_PN_NUMBER2,
+                    ':LOAN_BORROWER_CODE' => $CODE
+                ));
 
-        }catch (PDOException $s) {
-            print $e->getMessage();
+                if($stmtUpdate){
+                    echo '*--^^--___---^^--*';
+                }else{
+                    echo 'Failed';
+                }
+    
+            }
         }
-
-        
     }
 
+
+     
+  
+    
+    public function getUpdate(){
+
+        $sql = "SELECT top 300 * FROM LM_LOAN WHERE LOAN_CO = :LOAN_CO";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(array(
+            ':LOAN_CO' => 0
+        ));
+        $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach($data as $k => $v){
+
+        $stmtUpdate = $this->conn->prepare("UPDATE LM_LOAN set LOAN_PN_NUMBER = :LOAN_PN_NUMBER2
+        where LOAN_PN_NUMBER = :LOAN_PN_NUMBER AND LOAN_CO = :LOAN_CO");
+    $zero = "00000";
+     for($i = 0;$i<300;$i++){   
+    if($i == 10){
+        $zero = "0000";
+    }else if($i == 100){
+        $zero = "000";
+    }else if($i == 1000){
+        $zero = "00";
+    }
+    $year = '2019';
+        $LOAN_PN_NUMBER2 = 'JE100'.$year.$zero.$i;
+
+        $stmtUpdate->execute(array(
+            ':LOAN_PN_NUMBER' => $data[$i]['LOAN_PN_NUMBER'],
+            ':LOAN_PN_NUMBER2' => $LOAN_PN_NUMBER2,
+            ':LOAN_CO' => 0
+        ));
+        if($stmtUpdate){
+            echo 'Record '.$i.' updated ^"&SX*/*-/';
+      
+        }else{
+            echo 'Record '.$i.' failed to update <br>';
+     
+        }
+    }
+}
+    }
     public function get(){      
-        // $sql = "select *, tblCrecoms.Code as CrecomsId  from tblloans
-        //         LEFT OUTER JOIN tblPersonalInfos on
-        //         tblloans.PersonalInfoId = tblPersonalInfos.id
-        //         LEFT OUTER JOIN tblCrecoms on
-        //         tblloans.CrecomId = tblCrecoms.Id
-        //         where tblloans.Id >= 19867 AND tblloans.Id <=19875 
-        // "; 
-        $sql = "select TOP 100 *, tblCrecoms.Code as CrecomsId, 
+        $sql = "select TOP 300 *, tblCrecoms.Code as CrecomsId, 
         tblBranches.code as branCode,
 		tblPersonalInfos.Code as persoCode,
         tblProductTypes.code as protypeCode,
@@ -96,8 +345,8 @@ class Report{
         LEFT JOIN tblPersonalInfos on
         tblloans.PersonalInfoId = tblPersonalInfos.id
         LEFT JOIN tblCrecoms on
-        tblloans.CrecomId = tblCrecoms.Id where tblloans.PNNo IS NOT NULL AND year(tblloans.LastPaymentDate) = 2019";
-             
+        tblloans.CrecomId = tblCrecoms.Id where tblloans.PNNo IS NOT NULL AND year(tblloans.LastPaymentDate) >= 1900 AND 
+        tblLoans.OutStandingBalance >=1 and tblBranches.code = 'HOF'";
         $stmt = $this->connJeon->prepare($sql);
         $stmt->execute(array());
         $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -109,7 +358,7 @@ class Report{
         if($data){
             if($success){
                         foreach($data as $k => $v){
-                            for ($i = 0; $i < 100; $i++) {
+                            for ($i = 0; $i < 300; $i++) {
                             $c = 0;
                         $output2 = $v['ApprovedDate'];
                         $output3 = $v['SubjectNo'];
@@ -236,6 +485,7 @@ class Report{
                         $sstmt->bindParam(':LOAN_INTEREST_RATE',$LOAN_INTEREST_RATE);
                         $sstmt->bindParam(':LOAN_INTEREST_AMOUNT',$LOAN_INTEREST_AMOUNT);
                         $sstmt->bindParam(':LOAN_GRACE_PERIOD',$LOAN_GRACE_PERIOD);
+
                         $sstmt->bindParam(':LOAN_BORROWER_CODE',$LOAN_BORROWER_CODE);
                         $sstmt->bindParam(':LOAN_CHARGESTOTAL',$LOAN_CHARGESTOTAL);
                         $sstmt->bindParam(':LOAN_PNVALUE',$LOAN_PNVALUE);
@@ -269,12 +519,10 @@ class Report{
                         $MFIN_TRANS_ID = '00'.$i;
                         $LOAN_HO = $c;
                         $LOAN_CO = $c;
-                        // $LOAN_BR = $v['branCode'];
-                        $LOAN_BR = '100';
+                        $LOAN_BR = $v['branCode'];
                         $LOAN_APP_CODE = $c;
                         $year = '2019';
-                        $LOAN_PN_NUMBER = 'JE100'.$year.'0000'.$i;
-                        // $LOAN_PN_NUMBER = $v['PNNo'];
+                        $LOAN_PN_NUMBER = $v['PNNo'];
                         $LOAN_APP_DATE = $output2;
                         $LOAN_PRODUCT_CODE = '0202-'.$output3;
                         $LOAN_AMOUNT = $output4;
@@ -283,7 +531,20 @@ class Report{
                         $LOAN_INTEREST_RATE = $output5;
                         $LOAN_INTEREST_AMOUNT = $output6;
                         $LOAN_GRACE_PERIOD =$output7;
-                        $LOAN_BORROWER_CODE = $output8;
+                        
+                        $seq = "";
+                        if($k < 10){
+                        $seq = '0000000'.$k;
+                         }elseif($k < 100){
+                            $seq = '000000'.$k;
+                         }elseif($k < 1000){
+                            $seq = '00000'.$k;
+                         }elseif($k < 10000){
+                            $seq = '0000'.$k;
+                         }
+
+                        $LOAN_BORROWER_CODE = '00001002019'.$seq;
+                        // $LOAN_BORROWER_CODE = $output8;
                         $LOAN_CHARGESTOTAL = $v['TotalAmortizedCharges'];
                         $LOAN_PNVALUE = $output9;
                         $LOAN_MONTHLYAMORT = $v['Amortization'];
@@ -317,14 +578,35 @@ class Report{
                         $LOAN_PAYMENT_MODE = $output22;
                         $sstmt->execute();
                         $c++;
+
+                        if($sstmt){
+                            echo 'Record '.$i.' success <br>';
+                            // echo 10;
+                        }else{
+                            echo 'Record '.$i.' failed <br>';
+                            // echo 01;
+                        }
+                      
+                        // $stmtDelete = $this->conn->prepare("DELETE FROM LM_LOAN WHERE LOAN_PN_NUMBER = :LOAN_PN_NUMBER");
+                        // $stmtDelete->execute(array(
+                        //     ':LOAN_PN_NUMBER' => $v['PNNo']
+                        // ));
+
+                        // if($stmtDelete){
+                        //     // echo 'Record '.$i.' deleted <br>';
+                        //     echo 10;
+                        // }else{
+                        //     echo 10;
+                        //     // echo 'Record '.$i.' failed to deletea <br>';
+                        // }
+
+
+
+
                     } catch (PDOException $e) {
                         print $e->getMessage ();
                     }
-                        if($sstmt){
-                            echo 123;
-                        }else{
-                            echo 'error';
-                        }
+                    
                     }
                 }
             }
@@ -333,9 +615,11 @@ class Report{
         }
     }
     public function PR_BORROWERS(){
-        $sql = "select top 100 * from tblloans LEFT JOIN tblPersonalInfos on 
+        $sql = "select top 300 *,tblBranches.code as branCode from tblloans LEFT JOIN tblPersonalInfos on 
         tblloans.PersonalInfoId = tblPersonalInfos.Id 
-        where year(tblloans.LastPaymentDate) = 2019";
+        LEFT JOIN tblBranches on
+        tblloans.BranchId = tblBranches.id 
+        where year(tblloans.LastPaymentDate) >= 1900 AND tblLoans.OutStandingBalance >=1 and tblBranches.code = 'HOF'";
         $stmt = $this->connJeon->prepare($sql);
         $stmt->execute(array());
         $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -347,7 +631,7 @@ class Report{
         if($data){
               if($success){
                 foreach($data as $k => $v){
-                    for ($i = 0; $i < 100; $i++) {
+                    for ($i = 0; $i < 300; $i++) {
                         $c = 0;
                         try {
                         $sstmt = $this->conn->prepare("INSERT INTO PR_BORROWERS(
@@ -388,8 +672,21 @@ class Report{
                     );                                   
                     $BORR_HO = '00';
                     $BORR_CO = '00';
-                    $BORR_BR = '100';
-                    $BORR_CODE = '00'.$k;
+                    // $BORR_BR = '100';
+                    $BORR_BR = $v['branCode'];
+                               
+                    $seq = "";
+                    if($k < 10){
+                    $seq = '0000000'.$k;
+                     }elseif($k < 100){
+                        $seq = '000000'.$k;
+                     }elseif($k < 1000){
+                        $seq = '00000'.$k;
+                     }elseif($k < 10000){
+                        $seq = '0000'.$k;
+                     }
+
+                    $BORR_CODE = '00001002019'.$seq;
                     $output = $v['LastName'];
                     $output2 = $v['FirstName'];
                     $output3 = $v['MiddleName'];
@@ -427,9 +724,11 @@ class Report{
                         print $e->getMessage ();
                     }
                         if($sstmt){
-                            echo 123;
+                            // echo 'Record '.$i.' saved ';
+                            echo rand(0,1).rand(0,1);
                         }else{
-                            echo 'error';
+                            // echo 'Record '.$i.' failed to save';
+                            echo "Failed";
                         }
                     }
                 }                      
@@ -437,11 +736,77 @@ class Report{
         }else{
         }
     }
+    public function getTransmasterCode(){
+        $sql = "SELECT TOP 300 * from LM_LOAN";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(array());
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach($data as $k => $v){
+            $stmtUpdate = $this->conn->prepare("UPDATE FI_FINANCETRANS_MASTER set MFIN_BORROWER_CODE = :MFIN_BORROWER_CODE
+            WHERE MFIN_PN_NUMBER = :MFIN_PN_NUMBER");
+
+            for($i = 0;$i<300;$i++){
+            
+                $stmtUpdate->execute(array(
+                    'MFIN_PN_NUMBER' => $data[$i]['LOAN_PN_NUMBER'],
+                    'MFIN_BORROWER_CODE' => $data[$i]['LOAN_BORROWER_CODE']
+                ));
+
+                if($stmtUpdate){
+                    echo rand(0,1).rand(0,1);
+                }else{
+                    echo 'Error '.$k;
+                }
+            }           
+        }
+    }
+
+    public function getTransmaster(){
+
+        $sql = "SELECT top 300 * FROM FI_FINANCETRANS_MASTELMR";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(array());
+        $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach($data as $k => $v){
+
+        $stmtUpdate = $this->conn->prepare("UPDATE FI_FINANCETRANS_MASTER set MFIN_PN_NUMBER = :LOAN_PN_NUMBER2
+        where MFIN_PN_NUMBER = :LOAN_PN_NUMBER");
+    $zero = "00000";
+     for($i = 0;$i<300;$i++){   
+    if($i == 10){
+        $zero = "0000";
+    }else if($i == 100){
+        $zero = "000";
+    }else if($i == 1000){
+        $zero = "00";
+    }
+    $year = '2019';
+        $LOAN_PN_NUMBER2 = 'JE100'.$year.$zero.$i;
+
+        $stmtUpdate->execute(array(
+            ':LOAN_PN_NUMBER' => $data[$i]['MFIN_PN_NUMBER'],
+            
+            ':LOAN_PN_NUMBER2' => $LOAN_PN_NUMBER2
+        ));
+        if($stmtUpdate){
+            echo 'Record '.$i.' updated ^"&SX*/*-/';
+      
+        }else{
+            echo 'Record '.$i.' failed to update <br>';
+     
+        }
+    }
+}
+    }
 
     public function TRANSMASTER(){
-        $sql = "select top 100 tblLoanPayments.date, tblloans.PNNo, tblLoanPayments.CheckNo, 
+        $sql = "select top 300 tblLoanPayments.date, tblloans.PNNo, tblLoanPayments.CheckNo, 
         tblLoanPayments.Amount, tblLoanPayments.RefNo, tblLoanPayments.ORNo, 
-        tblLoanPayments.BankId, tblLoanPayments.Balance,
+        tblLoanPayments.BankId, tblLoanPayments.Balance, tblBranches.code as branCode,
         tblLoanPayments.CheckDepositDate, tblLoanPayments.Comments,
         tblLoanPayments.Penalty,
         tblLoanPayments.ARNo, tblLoans.LoanAmount, tblloans.PNValue,
@@ -449,7 +814,9 @@ class Report{
         tblJournals on tblloans.JournalVoucherId = tblJournals.Id 
         inner join tblLoanPayments on
         tblJournals.LoanId = tblLoanPayments.LoanId
-        where year(tblloans.LastPaymentDate) = 2019 AND tblloans.PNNo IS NOT NULL";
+        LEFT JOIN tblBranches on
+        tblloans.BranchId = tblBranches.id 
+        where year(tblloans.LastPaymentDate) >= 1900 AND tblloans.PNNo IS NOT NULL AND tblLoans.OutStandingBalance >=1 and tblBranches.code = 'HOF'";
         $stmt = $this->connJeon->prepare($sql);
         $stmt->execute(array());
         $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -461,7 +828,7 @@ class Report{
         if($data){
             if($success){
               foreach($data as $k => $v){
-                    for ($i = 0; $i < 100; $i++) {
+                    for ($i = 0; $i < 300; $i++) {
                         $c = 0;
                         try {
                         $sstmt = $this->conn->prepare("INSERT INTO FI_FINANCETRANS_MASTER(
@@ -470,6 +837,7 @@ class Report{
                             MFIN_HO_CODE,
                             MFIN_CO_CODE,
                             MFIN_BR_CODE,
+                            MFIN_BORROWER_CODE,
                             MFIN_PAY_AMOUNT,
                             MFIN_POST_DATE,
                             MFIN_REMARKS,
@@ -486,6 +854,7 @@ class Report{
                             :MFIN_HO_CODE,
                             :MFIN_CO_CODE,
                             :MFIN_BR_CODE,
+                            :MFIN_BORROWER_CODE,
                             :MFIN_PAY_AMOUNT,
                             :MFIN_POST_DATE,
                             :MFIN_REMARKS,
@@ -501,24 +870,46 @@ class Report{
                     $MFIN_TRANS_ID = '00'.$i;
                     $MFIN_HO_CODE = '00';
                     $MFIN_CO_CODE = '00';
-                    $MFIN_BR_CODE = '100';
+                    // $MFIN_BR_CODE = '100';
+                    $MFIN_BR_CODE = $v['branCode'];
                     $year = '2019';
-                    $LOAN_PN_NUMBER = 'JE100'.$year.'0000'.$i;
+                    $zero = "00000";
+                    if($i == 10){
+                        $zero = "0000";
+                    }else if($i == 100){
+                        $zero = "000";
+                    }else if($i == 1000){
+                        $zero = "00";
+                    }
+                    // $LOAN_PN_NUMBER = 'JE100'.$year.$zero.$i;
+                    $LOAN_PN_NUMBER = $v['PNNo'];
                     $BORR_CODE = 'JEON MIGRATION-'.$i;
                     $output = $v['Amount'];
-                    $output2 = $v['CheckDepositDate'];
+                    $output2 = $v['CheckDepositDate'];                             
+                    $seq = "";
+                    if($k < 10){
+                    $seq = '0000000'.$k;
+                     }elseif($k < 100){
+                        $seq = '000000'.$k;
+                     }elseif($k < 1000){
+                        $seq = '00000'.$k;
+                     }elseif($k < 10000){
+                        $seq = '0000'.$k;
+                     }
+                    $MFIN_BORROWER_CODE = '00001002019'.$seq; ;
                     $output3 = $v['Comments'];
                     $output4 = $v['PNValue'];
                     $output5 = $v['Balance'];
                     $output6 = $v['PNNo'];
                     $output7 = $v['ARNo'];
-                    $date = date("Y-m-d H:i:s");
+                    $date = $v['CheckDepositDate'];
                     $sstmt->bindParam(':MFIN_REMIT_DATE',$date);
                     $sstmt->bindParam(':MFIN_PR_DATE',$date);
                     $sstmt->bindParam(':MFIN_POST_DATE',$date);
                     $sstmt->bindParam(':MFIN_GL_DATE',$date);
                         $sstmt->bindParam(':MFIN_TRANS_ID',$MFIN_TRANS_ID);
                         $sstmt->bindParam(':MFIN_TRANS_DATE',$date);
+                        $sstmt->bindParam(':MFIN_BORROWER_CODE',$MFIN_BORROWER_CODE);
                         $sstmt->bindParam(':MFIN_HO_CODE',$MFIN_HO_CODE);
                         $sstmt->bindParam(':MFIN_CO_CODE',$MFIN_CO_CODE);
                         $sstmt->bindParam(':MFIN_BR_CODE',$MFIN_BR_CODE);
@@ -531,16 +922,16 @@ class Report{
                         $sstmt->bindParam(':MFIN_PR_NUMBER', $output7);
                         $sstmt->execute();
                         $c++;
+                        if($sstmt){
+                            echo 'Record '.$i.' success *"!£!"';
+                        }else{
+                            echo 'Record '.$i.' failed  *"!£!"';
+                            }
                     } catch (PDOException $e) {
                         print $e->getMessage ();
                     }
-                        if($sstmt){
-                            echo 123;
-                        }else{
-                            echo 'error';
-                        }
-                    }
-                }                      
+                  }
+               }                      
             }            
         }else{
         }
