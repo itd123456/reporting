@@ -67,7 +67,7 @@ class Report{
  }
 
     public function updateBranch(){
-        $sql = "select top 300 * from LM_LOAN where LOAN_CO = :LOAN_CO";
+        $sql = "select top 102 * from LM_LOAN where LOAN_CO = :LOAN_CO";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute(array(
@@ -80,14 +80,14 @@ class Report{
       
             $stmtUpdate = $this->conn->prepare("UPDATE LM_LOAN set LOAN_BR = :LOAN_BR, 
             LOAN_PN_NUMBER = :LOAN_PN_NUMBER2, LOAN_BORROWER_CODE = :LOAN_BORROWER_CODE where LOAN_PN_NUMBER = :LOAN_PN_NUMBER");
-            for($i=0;$i<300;$i++){
+            for($i=0;$i<102;$i++){
                 $LOAN_PN_NUMBER = $data[$i]['LOAN_PN_NUMBER'];
                 $LOAN_BR = "";
                 $LOAN_PN_NUMBER2 = "";
                 $CODE = "";
 
                 $lastchar = substr($data[$i]['LOAN_PN_NUMBER'], -4);
-                $lastcharCode = substr($data[$i]['LOAN_PN_NUMBER'], -8);
+                $lastcharCode = substr($data[$i]['LOAN_PN_NUMBER'], -6);
                 if($data[$i]['LOAN_BR'] == 'HOF' ){
                     $LOAN_BR = '100';
                     $LOAN_PN_NUMBER2 = 'JE'.$LOAN_BR.'201900'.$lastchar; 
@@ -280,13 +280,12 @@ class Report{
         }
     }
 
-
-     
+  
   
     
     public function getUpdate(){
 
-        $sql = "SELECT top 300 * FROM LM_LOAN WHERE LOAN_CO = :LOAN_CO";
+        $sql = "SELECT top 102 * FROM LM_LOAN WHERE LOAN_CO = :LOAN_CO";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute(array(
@@ -299,7 +298,7 @@ class Report{
         $stmtUpdate = $this->conn->prepare("UPDATE LM_LOAN set LOAN_PN_NUMBER = :LOAN_PN_NUMBER2
         where LOAN_PN_NUMBER = :LOAN_PN_NUMBER AND LOAN_CO = :LOAN_CO");
     $zero = "00000";
-     for($i = 0;$i<300;$i++){   
+     for($i = 0;$i<102;$i++){   
     if($i == 10){
         $zero = "0000";
     }else if($i == 100){
@@ -326,7 +325,7 @@ class Report{
 }
     }
     public function get(){      
-        $sql = "select TOP 300 *, tblCrecoms.Code as CrecomsId, 
+        $sql = "select TOP 102 *, tblCrecoms.Code as CrecomsId, 
         tblBranches.code as branCode,
 		tblPersonalInfos.Code as persoCode,
         tblProductTypes.code as protypeCode,
@@ -358,7 +357,9 @@ class Report{
         if($data){
             if($success){
                         foreach($data as $k => $v){
-                            for ($i = 0; $i < 300; $i++) {
+
+                            $count = count($data);
+                            for ($i = 0; $i < 102; $i++) {
                             $c = 0;
                         $output2 = $v['ApprovedDate'];
                         $output3 = $v['SubjectNo'];
@@ -615,7 +616,7 @@ class Report{
         }
     }
     public function PR_BORROWERS(){
-        $sql = "select top 300 *,tblBranches.code as branCode from tblloans LEFT JOIN tblPersonalInfos on 
+        $sql = "select top 102 *,tblBranches.code as branCode from tblloans LEFT JOIN tblPersonalInfos on 
         tblloans.PersonalInfoId = tblPersonalInfos.Id 
         LEFT JOIN tblBranches on
         tblloans.BranchId = tblBranches.id 
@@ -631,7 +632,9 @@ class Report{
         if($data){
               if($success){
                 foreach($data as $k => $v){
-                    for ($i = 0; $i < 300; $i++) {
+                    
+                    $count = count($data);
+                    for ($i = 0; $i < 102; $i++) {
                         $c = 0;
                         try {
                         $sstmt = $this->conn->prepare("INSERT INTO PR_BORROWERS(
@@ -737,7 +740,7 @@ class Report{
         }
     }
     public function getTransmasterCode(){
-        $sql = "SELECT TOP 300 * from LM_LOAN";
+        $sql = "SELECT TOP 102 * from LM_LOAN";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute(array());
@@ -747,7 +750,8 @@ class Report{
             $stmtUpdate = $this->conn->prepare("UPDATE FI_FINANCETRANS_MASTER set MFIN_BORROWER_CODE = :MFIN_BORROWER_CODE
             WHERE MFIN_PN_NUMBER = :MFIN_PN_NUMBER");
 
-            for($i = 0;$i<300;$i++){
+        $count = count($data);
+            for ($i = 0; $i < 102; $i++) {
             
                 $stmtUpdate->execute(array(
                     'MFIN_PN_NUMBER' => $data[$i]['LOAN_PN_NUMBER'],
@@ -765,7 +769,7 @@ class Report{
 
     public function getTransmaster(){
 
-        $sql = "SELECT top 300 * FROM FI_FINANCETRANS_MASTELMR";
+        $sql = "SELECT top 102 * FROM FI_FINANCETRANS_MASTELMR";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute(array());
@@ -776,7 +780,9 @@ class Report{
         $stmtUpdate = $this->conn->prepare("UPDATE FI_FINANCETRANS_MASTER set MFIN_PN_NUMBER = :LOAN_PN_NUMBER2
         where MFIN_PN_NUMBER = :LOAN_PN_NUMBER");
     $zero = "00000";
-     for($i = 0;$i<300;$i++){   
+     
+    $count = count($data);
+    for ($i = 0; $i < 102; $i++) {
     if($i == 10){
         $zero = "0000";
     }else if($i == 100){
@@ -804,7 +810,7 @@ class Report{
     }
 
     public function TRANSMASTER(){
-        $sql = "select top 300 tblLoanPayments.date, tblloans.PNNo, tblLoanPayments.CheckNo, 
+        $sql = "select top 102 *, tblLoanPayments.date, tblloans.PNNo, tblLoanPayments.CheckNo, 
         tblLoanPayments.Amount, tblLoanPayments.RefNo, tblLoanPayments.ORNo, 
         tblLoanPayments.BankId, tblLoanPayments.Balance, tblBranches.code as branCode,
         tblLoanPayments.CheckDepositDate, tblLoanPayments.Comments,
@@ -816,7 +822,8 @@ class Report{
         tblJournals.LoanId = tblLoanPayments.LoanId
         LEFT JOIN tblBranches on
         tblloans.BranchId = tblBranches.id 
-        where year(tblloans.LastPaymentDate) >= 1900 AND tblloans.PNNo IS NOT NULL AND tblLoans.OutStandingBalance >=1 and tblBranches.code = 'HOF'";
+        where year(tblloans.LastPaymentDate) >= 1900 AND tblloans.PNNo IS NOT NULL AND
+        tblLoans.OutStandingBalance >=1 and tblBranches.code = 'HOF'";
         $stmt = $this->connJeon->prepare($sql);
         $stmt->execute(array());
         $data =  $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -828,7 +835,9 @@ class Report{
         if($data){
             if($success){
               foreach($data as $k => $v){
-                    for ($i = 0; $i < 300; $i++) {
+                    
+                $count = count($data);
+                 for ($i = 0; $i < 102; $i++) {
                         $c = 0;
                         try {
                         $sstmt = $this->conn->prepare("INSERT INTO FI_FINANCETRANS_MASTER(
@@ -874,18 +883,20 @@ class Report{
                     $MFIN_BR_CODE = $v['branCode'];
                     $year = '2019';
                     $zero = "00000";
-                    if($i == 10){
+                    if($k == 10){
                         $zero = "0000";
-                    }else if($i == 100){
+                    }else if($k == 100){
                         $zero = "000";
-                    }else if($i == 1000){
+                    }else if($k == 1000){
                         $zero = "00";
                     }
                     // $LOAN_PN_NUMBER = 'JE100'.$year.$zero.$i;
                     $LOAN_PN_NUMBER = $v['PNNo'];
                     $BORR_CODE = 'JEON MIGRATION-'.$i;
                     $output = $v['Amount'];
-                    $output2 = $v['CheckDepositDate'];                             
+                    $output2 = $v['CheckDepositDate'];    
+                    $date =  date('Y-m-d H:i:s');
+                         
                     $seq = "";
                     if($k < 10){
                     $seq = '0000000'.$k;
@@ -902,13 +913,14 @@ class Report{
                     $output5 = $v['Balance'];
                     $output6 = $v['PNNo'];
                     $output7 = $v['ARNo'];
-                    $date = $v['CheckDepositDate'];
-                    $sstmt->bindParam(':MFIN_REMIT_DATE',$date);
+            
+                    // $date = $v['CheckDepositDate'];
+                    $sstmt->bindParam(':MFIN_REMIT_DATE',$output2);
                     $sstmt->bindParam(':MFIN_PR_DATE',$date);
                     $sstmt->bindParam(':MFIN_POST_DATE',$date);
-                    $sstmt->bindParam(':MFIN_GL_DATE',$date);
+                    $sstmt->bindParam(':MFIN_GL_DATE',$output2);
                         $sstmt->bindParam(':MFIN_TRANS_ID',$MFIN_TRANS_ID);
-                        $sstmt->bindParam(':MFIN_TRANS_DATE',$date);
+                        $sstmt->bindParam(':MFIN_TRANS_DATE',$output2);
                         $sstmt->bindParam(':MFIN_BORROWER_CODE',$MFIN_BORROWER_CODE);
                         $sstmt->bindParam(':MFIN_HO_CODE',$MFIN_HO_CODE);
                         $sstmt->bindParam(':MFIN_CO_CODE',$MFIN_CO_CODE);
